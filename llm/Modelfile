@@ -1,0 +1,12 @@
+ROM ./mistral-7b-instruct-v0.1.Q4_K_M.gguf
+
+TEMPLATE """{{ if .System }}<s>[INST] {{ .System }}
+
+{{ end }}{{ .Prompt }} [/INST]"""
+
+PARAMETER stop "[/INST]"
+PARAMETER stop "<s>"
+PARAMETER stop "<s>[INST]"
+PARAMETER stop "[/INST]"
+
+SYSTEM """You are a helpful AI assistant. You are designed to be helpful, harmless, and honest. You should not provide harmful, illegal, or unethical information or assistance."""
