@@ -1,0 +1,87 @@
+MIT License with Educational Use Exception - Commercial Use Prohibited
+
+Copyright (c) 2025 LammaSec
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+ADDITIONAL EDUCATIONAL USE PERMISSIONS AND COMMERCIAL USE RESTRICTIONS:
+This software is specifically designed for educational and research purposes in 
+the field of AI security testing and red teaming. The following permissions and 
+restrictions apply:
+
+1. EDUCATIONAL USE (PERMITTED): This software may be freely used, modified, and distributed
+   for educational purposes, including but not limited to:
+   - Academic research and teaching
+   - Security training and workshops
+   - Educational demonstrations
+   - Learning and skill development
+   - Non-commercial research projects
+   - University and school projects
+   - Educational content creation
+
+2. PRIVATE USE (PERMITTED): This software may be freely used for private, non-commercial
+   purposes, including but not limited to:
+   - Personal learning and experimentation
+   - Home lab environments
+   - Private security testing
+   - Non-commercial projects
+   - Personal research and development
+   - Hobby projects
+
+3. COMMERCIAL USE (EXPLICITLY PROHIBITED): Commercial use of this software is STRICTLY FORBIDDEN
+   without explicit written permission from LammaSec. This includes but is not limited to:
+   - Selling or licensing the software
+   - Using the software in commercial products or services
+   - Using the software for profit-generating activities
+   - Incorporating the software into commercial applications
+   - Using the software in business environments for commercial purposes
+   - Providing commercial services using this software
+   - Any use that generates revenue, profit, or commercial value
+
+4. RESPONSIBLE USE: Users of this software agree to:
+   - Use the software only for legitimate security testing and educational purposes
+   - Not use the software for malicious attacks or unauthorized access
+   - Comply with all applicable laws and regulations
+   - Respect the privacy and security of others
+   - Use the software in controlled, authorized environments only
+   - Not use the software for any commercial or profit-generating activities
+
+5. ATTRIBUTION: When using this software, users must:
+   - Include the original copyright notice
+   - Credit LammaSec as the original author
+   - Include a link to the original repository when possible
+
+6. DISCLAIMER: This software is provided "as is", without warranty of any kind,
+   express or implied, including but not limited to the warranties of
+   merchantability, fitness for a particular purpose and noninfringement. In no
+   event shall the authors or copyright holders be liable for any claim, damages
+   or other liability, whether in an action of contract, tort or otherwise,
+   arising from, out of or in connection with the software or the use or other
+   dealings in the software.
+
+7. SECURITY NOTICE: This software is designed for security testing and may
+   generate content that could be harmful if used maliciously. Users are
+   responsible for ensuring they use this software responsibly and in accordance
+   with applicable laws and ethical guidelines.
+
+8. COMMERCIAL LICENSING: For commercial use, licensing, or business applications,
+   please contact LammaSec for proper licensing arrangements. Commercial use
+   without permission constitutes a violation of this license.
+
+For commercial licensing, research collaborations, or questions about usage,
+please contact LammaSec at [contact information].
+
+This license is effective as of the date of first publication and applies to
+all versions of the software.
+
+VIOLATION OF COMMERCIAL USE RESTRICTIONS:
+Any commercial use of this software without explicit written permission from
+LammaSec constitutes a violation of this license and may result in legal action.

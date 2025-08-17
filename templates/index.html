@@ -1,0 +1,2126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Generator for Red Team by LammaSec</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #dc3545;
+            --secondary-color: #6c757d;
+            --dark-bg: #212529;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 1400px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #c82333);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 2.5rem;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), #c82333);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #c82333);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        .prompt-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .prompt-item:hover {
+            background: #e9ecef;
+            border-color: var(--primary-color);
+        }
+
+        .prompt-text {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid var(--primary-color);
+            margin: 10px 0;
+            word-wrap: break-word;
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .status-low { background: #d4edda; color: #155724; }
+        .status-medium { background: #fff3cd; color: #856404; }
+        .status-high { background: #f8d7da; color: #721c24; }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #dee2e6;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+
+        .footer {
+            background: var(--dark-bg);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .copy-btn {
+            background: var(--secondary-color);
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #5a6268;
+        }
+
+
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .chatgpt-response {
+            border-left-color: #28a745 !important;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4);
+        }
+
+        .form-check {
+            margin-bottom: 8px;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .form-check-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Console area styling */
+        .console-area {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .console-header {
+            background: linear-gradient(135deg, #343a40, #495057);
+            color: white;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .console-body {
+            background: white;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .col-md-4 {
+                margin-bottom: 20px;
+            }
+            
+            .main-container {
+                margin: 10px;
+                max-width: 100%;
+            }
+        }
+
+        /* Session separator styling */
+        .session-separator {
+            margin: 20px 0;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .session-separator .text-center {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        /* Conversation styling */
+        .conversation-message .card {
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .conversation-message .card-header {
+            border-radius: 8px 8px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .conversation-analysis .card {
+            border-radius: 8px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .conversation-analysis .card-header {
+            border-radius: 8px 8px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .conversation-analysis .badge {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.6rem;
+        }
+
+        .conversation-analysis ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .conversation-analysis ul li i {
+            font-size: 0.6rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Console Logging Styles */
+        .console-log {
+            margin: 8px 0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border-left: 4px solid;
+            background: rgba(255, 255, 255, 0.9);
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .console-log-info {
+            border-left-color: #17a2b8;
+            background: rgba(23, 162, 184, 0.1);
+        }
+
+        .console-log-success {
+            border-left-color: #28a745;
+            background: rgba(40, 167, 69, 0.1);
+        }
+
+        .console-log-warning {
+            border-left-color: #ffc107;
+            background: rgba(255, 193, 7, 0.1);
+        }
+
+        .console-log-error {
+            border-left-color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        .console-log-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .console-log-content i {
+            margin-top: 2px;
+            font-size: 0.8rem;
+        }
+
+        .console-log-time {
+            color: #6c757d;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .console-log-message {
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .api-data {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 8px;
+            margin: 4px 0;
+            font-size: 0.75rem;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .api-error-stack {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            padding: 8px;
+            margin: 4px 0;
+            font-size: 0.7rem;
+            max-height: 150px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #721c24;
+        }
+
+        .conversation-message .card.border-warning {
+            border: 2px solid #ffc107 !important;
+        }
+        
+        .conversation-message .text-warning {
+            color: #856404 !important;
+        }
+        
+        .conversation-message .badge.bg-info {
+            background-color: #17a2b8 !important;
+        }
+        
+        .conversation-analysis .badge {
+            font-size: 0.8em;
+        }
+        
+        .conversation-analysis .badge.bg-success {
+            background-color: #28a745 !important;
+        }
+        
+        .conversation-analysis .badge.bg-danger {
+            background-color: #dc3545 !important;
+        }
+        
+        .conversation-analysis .badge.bg-warning {
+            background-color: #ffc107 !important;
+            color: #212529 !important;
+        }
+        
+        .conversation-analysis .badge.bg-info {
+            background-color: #17a2b8 !important;
+        }
+        
+        .conversation-analysis .badge.bg-secondary {
+            background-color: #6c757d !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Prompt Generator for Red Team</h1>
+            <p>by LammaSec - Advanced AI Security Testing</p>
+        </div>
+
+        <div class="content">
+            <!-- Three-column layout -->
+            <div class="row">
+                <!-- Column 1: Generation Strategies + Evasion Techniques -->
+                <div class="col-md-4">
+                    <!-- Status Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-info-circle"></i> System Status
+                                </div>
+                                <div class="card-body">
+                                    <div id="status-content">
+                                        <div class="d-flex align-items-center">
+                                            <div class="spinner me-3"></div>
+                                            <span>Checking system status...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Generation Strategies and Evasion Techniques Side by Side -->
+                    <div class="row mb-4">
+                        <!-- Generation Strategies -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <i class="fas fa-magic"></i> Generation Strategies
+                                </div>
+                                <div class="card-body">
+                                    <form id="generation-form">
+                                        <div class="mb-3">
+                                            <label for="strategy" class="form-label">Generation Strategies <span class="text-danger">*</span></label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="prompt_injection" id="strategy_prompt_injection" name="strategy">
+                                                <label class="form-check-label" for="strategy_prompt_injection">
+                                                    Prompt Injection
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="jailbreaking" id="strategy_jailbreaking" name="strategy">
+                                                <label class="form-check-label" for="strategy_jailbreaking">
+                                                    Jailbreaking
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="harm_generation" id="strategy_harm_generation" name="strategy">
+                                                <label class="form-check-label" for="strategy_harm_generation">
+                                                    Harm Generation
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="hate_content" id="strategy_hate_content" name="strategy">
+                                                <label class="form-check-label" for="strategy_hate_content">
+                                                    Hate Content
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="privacy_violation" id="strategy_privacy_violation" name="strategy">
+                                                <label class="form-check-label" for="strategy_privacy_violation">
+                                                    Privacy Violation
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="deception" id="strategy_deception" name="strategy">
+                                                <label class="form-check-label" for="strategy_deception">
+                                                    Deception
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="evasion" id="strategy_evasion" name="strategy">
+                                                <label class="form-check-label" for="strategy_evasion">
+                                                    Evasion
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="multi_turn" id="strategy_multi_turn" name="strategy">
+                                                <label class="form-check-label" for="strategy_multi_turn">
+                                                    Multi-Turn
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="random" id="strategy_random" name="strategy">
+                                                <label class="form-check-label" for="strategy_random">
+                                                    Random
+                                                </label>
+                                            </div>
+                                            <small class="text-muted">Select at least one strategy</small>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="custom_instructions" class="form-label">Custom Instructions (Optional)</label>
+                                            <input type="text" class="form-control" id="custom_instructions" name="custom_instructions" placeholder="Additional instructions...">
+                                        </div>
+
+                                        <div class="text-center">
+                                            <button type="submit" class="btn btn-primary btn-lg">
+                                                <i class="fas fa-magic"></i> Generate Prompts
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Evasion Techniques -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <i class="fas fa-mask"></i> Evasion Techniques
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="evasion_techniques" class="form-label">Evasion Techniques</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="random" id="evasion_random" name="evasion_techniques" onchange="toggleRandomEvasion()">
+                                            <label class="form-check-label" for="evasion_random">
+                                                <strong>🎲 Random Evasion</strong>
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="roleplay" id="evasion_roleplay" name="evasion_techniques">
+                                            <label class="form-check-label" for="evasion_roleplay">
+                                                Roleplay
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="character_injection" id="evasion_character_injection" name="evasion_techniques">
+                                            <label class="form-check-label" for="evasion_character_injection">
+                                                Character Injection
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="adversarial_ml" id="evasion_adversarial_ml" name="evasion_techniques">
+                                            <label class="form-check-label" for="evasion_adversarial_ml">
+                                                Adversarial ML Evasion
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="hindi_translation" id="evasion_hindi_translation" name="evasion_techniques">
+                                            <label class="form-check-label" for="evasion_hindi_translation">
+                                                Hindi Translation
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="encoding" id="evasion_encoding" name="evasion_techniques">
+                                            <label class="form-check-label" for="evasion_encoding">
+                                                Encoding
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="combined" id="evasion_combined" name="evasion_techniques">
+                                            <label class="form-check-label" for="evasion_combined">
+                                                Combined (All Techniques)
+                                            </label>
+                                        </div>
+                                        <small class="text-muted">Select techniques or leave unchecked for no evasion</small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="test_prompt" class="form-label">Test Prompt for Evasion</label>
+                                        <textarea class="form-control" id="test_prompt" rows="2" placeholder="Enter a prompt to test evasion techniques..."></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div id="evasion-info-text" style="display: none;" class="alert alert-info">
+                                            <strong>Evasion Techniques:</strong><br>
+                                            • <strong>🎲 Random Evasion:</strong> Automatically selects random techniques for each prompt generation<br>
+                                            • <strong>None:</strong> No evasion applied - prompt remains unchanged<br>
+                                            • <strong>Roleplay:</strong> Wraps prompt in roleplay context to bypass detection<br>
+                                            • <strong>Character Injection:</strong> Injects invisible Unicode characters to confuse detection<br>
+                                            • <strong>Adversarial ML:</strong> Applies case swapping, invisible spaces, and diacritics<br>
+                                            • <strong>Hindi Translation:</strong> Translates key words to Hindi to bypass filters<br>
+                                            • <strong>Encoding:</strong> Encodes parts of the prompt<br>
+                                            • <strong>Combined:</strong> Applies multiple techniques sequentially<br><br>
+                                            <strong>Intensity:</strong> Always set to maximum (1.0) for optimal evasion effectiveness
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <button type="button" class="btn btn-warning btn-sm" onclick="toggleEvasionInfo()">
+                                            <i class="fas fa-info-circle"></i> Info
+                                        </button>
+                                        <button type="button" class="btn btn-warning btn-sm ms-2" onclick="testEvasionTechniques()">
+                                            <i class="fas fa-flask"></i> Test Evasion Techniques
+                                        </button>
+                                        <button type="button" class="btn btn-info btn-sm ms-2" onclick="showEvasionPreview()">
+                                            <i class="fas fa-eye"></i> Preview Evasion
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 2: AI Provider Testing -->
+                <div class="col-md-4">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-robot"></i> AI Provider Testing Configuration
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="ai_provider" class="form-label">AI Provider</label>
+                                            <select class="form-select" id="ai_provider" onchange="onProviderChange()">
+                                                <option value="">Select Provider...</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="ai_model" class="form-label">Model</label>
+                                            <select class="form-select" id="ai_model" disabled>
+                                                <option value="">Select Model...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <label for="ai_api_key" class="form-label">API Key</label>
+                                            <input type="password" class="form-control" id="ai_api_key" placeholder="Enter your API key...">
+                                            <small class="text-muted">Your API key is stored locally and not sent to our servers</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Conversation Configuration -->
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">
+                                                        <i class="fas fa-comments"></i> Automated Conversation Options
+                                                    </h6>
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-2">
+                                                            <label for="conversation_intervals" class="form-label">Number of Intervals</label>
+                                                            <input type="number" class="form-control" id="conversation_intervals" min="1" max="20" value="5">
+                                                            <small class="text-muted">Number of back-and-forth exchanges (1-20)</small>
+                                                        </div>
+                                                        <div class="col-md-6 mb-2">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" id="enable_conversation">
+                                                                <label class="form-check-label" for="enable_conversation">
+                                                                    Enable Automated Conversation
+                                                                </label>
+                                                            </div>
+                                                            <small class="text-muted">When enabled, will start a multi-turn conversation with the selected AI provider</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <label for="manual_prompt" class="form-label">Or Test a Single Manual Prompt</label>
+                                            <textarea class="form-control" id="manual_prompt" rows="3" placeholder="Enter your own prompt to test with the selected AI..."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button type="button" class="btn btn-success btn-lg me-2" onclick="testAllPromptsWithAI()">
+                                            <i class="fas fa-robot"></i> Test All Generated Prompts
+                                        </button>
+                                        <button type="button" class="btn btn-info btn-lg me-2" onclick="testManualPrompt()">
+                                            <i class="fas fa-paper-plane"></i> Test Manual Prompt
+                                        </button>
+                                                                                 <button type="button" class="btn btn-warning btn-lg" onclick="startConversation()" id="conversation_btn" disabled>
+                                             <i class="fas fa-play"></i> Start Automated Conversation
+                                         </button>
+                                         <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="testConversationProgress()">
+                                             <i class="fas fa-wifi"></i> Test Progress Tracking
+                                         </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 3: Console Output -->
+                <div class="col-md-4">
+                    <!-- Console Header -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header console-header">
+                                    <i class="fas fa-terminal"></i> Console Output
+                                    <button class="btn btn-sm btn-outline-light float-end" onclick="clearConsole()">
+                                        <i class="fas fa-trash"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                                         <!-- Loading Section (in console) -->
+                     <div id="loading" class="loading" style="display: none;">
+                         <div class="spinner"></div>
+                         <p class="mb-0">Starting conversation...</p>
+                     </div>
+
+                    <!-- Generated Prompts Console -->
+                    <div id="results" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <i class="fas fa-list"></i> Generated Prompts
+                                        <button class="btn btn-sm btn-outline-light float-end" onclick="copyAllPrompts()">
+                                            <i class="fas fa-copy"></i> Copy All
+                                        </button>
+                                    </div>
+                                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                                        <div id="prompts-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Test Results Console -->
+                <div id="ai-test-results" style="display: none;">
+                        <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-comments"></i> AI Test Results
+                                    <button class="btn btn-sm btn-outline-light float-end" onclick="copyAllAIResults()">
+                                        <i class="fas fa-copy"></i> Copy All Results
+                                    </button>
+                                </div>
+                                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                                    <div id="ai-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                    <!-- Conversation Results Console -->
+                    <div id="conversation-results" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <i class="fas fa-comments"></i> Conversation Results
+                                        <button class="btn btn-sm btn-outline-light float-end" onclick="copyConversationResults()">
+                                            <i class="fas fa-copy"></i> Copy Results
+                                        </button>
+                                    </div>
+                                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                                        <div id="conversation-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Console Info -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body text-center text-muted">
+                                    <i class="fas fa-info-circle fa-2x mb-2"></i>
+                                    <p class="mb-0">Console area will display generated prompts and AI responses here.</p>
+                                    <small>Generated content will appear in the sections above.</small>
+                </div>
+                </div>
+                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2025 LammaSec. Advanced AI Security Testing Platform.</p>
+        </div>
+    </div>
+
+    <!-- Evasion Preview Modal -->
+    <div class="modal fade" id="evasionPreviewModal" tabindex="-1" aria-labelledby="evasionPreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="evasionPreviewModalLabel">
+                        <i class="fas fa-mask"></i> Evasion Technique Preview
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <h6 class="text-danger">Original Prompt:</h6>
+                        <div class="prompt-text" style="border-left-color: #dc3545;">
+                            <span id="original-prompt"></span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-success">Evaded Prompt:</h6>
+                        <div class="prompt-text" style="border-left-color: #28a745;">
+                            <span id="evaded-prompt"></span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h6>Evasion Metadata:</h6>
+                        <pre id="evasion-metadata" class="small text-muted bg-light p-2 rounded"></pre>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let currentPrompts = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            logToConsole('Application initialized - loading components...', 'info');
+            checkSystemStatus();
+            loadEvasionTechniques();
+            loadAIProviders();
+            setupEventListeners();
+        });
+
+        async function loadEvasionTechniques() {
+            // This function is no longer needed since we're using static checkboxes
+            // But we'll keep it for potential future dynamic loading
+            try {
+                logToConsole('Loading evasion techniques...', 'info');
+                
+                const response = await fetch('/api/evasion-techniques');
+                const data = await response.json();
+                
+                // Log the API response
+                logAPIResponse('/api/evasion-techniques', data, true);
+                
+                if (data.evasion_techniques) {
+                    // Update checkbox labels if needed in the future
+                    console.log('Evasion techniques loaded:', data.evasion_techniques);
+                }
+            } catch (error) {
+                console.error('Error loading evasion techniques:', error);
+                logAPIError('/api/evasion-techniques', error);
+            }
+        }
+
+        function setupEventListeners() {
+            document.getElementById('generation-form').addEventListener('submit', handleGeneration);
+            
+            // Add event listener for conversation checkbox
+            document.getElementById('enable_conversation').addEventListener('change', function() {
+                const conversationBtn = document.getElementById('conversation_btn');
+                const intervalsInput = document.getElementById('conversation_intervals');
+                
+                if (this.checked) {
+                    conversationBtn.disabled = false;
+                    intervalsInput.disabled = false;
+                } else {
+                    conversationBtn.disabled = true;
+                    intervalsInput.disabled = true;
+                }
+            });
+        }
+
+        async function checkSystemStatus() {
+            try {
+                logToConsole('Checking system status...', 'info');
+                
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                // Log the API response
+                logAPIResponse('/api/health', data, data.status === 'healthy');
+                
+                const statusContent = document.getElementById('status-content');
+                
+                if (data.status === 'healthy') {
+                    statusContent.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <strong>System Status:</strong> ${data.message}<br>
+                                <small class="text-muted">Ollama: ${data.ollama_running ? 'Running' : 'Not Running'}</small>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    statusContent.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle text-warning me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <strong>System Status:</strong> ${data.error}<br>
+                                <small class="text-muted">Please check your configuration</small>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error checking system status:', error);
+                logAPIError('/api/health', error);
+                document.getElementById('status-content').innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-times-circle text-danger me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <strong>System Status:</strong> Connection Error<br>
+                                <small class="text-muted">Unable to connect to the server</small>
+                            </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function handleGeneration(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            
+            // Get selected strategies from checkboxes
+            const strategyCheckboxes = document.querySelectorAll('input[name="strategy"]:checked');
+            const selectedStrategies = Array.from(strategyCheckboxes).map(cb => cb.value);
+            
+            // Validate that at least one strategy is selected
+            if (selectedStrategies.length === 0) {
+                showError('Please select at least one generation strategy');
+                return;
+            }
+            
+            // Get evasion techniques from checkboxes
+            const evasionCheckboxes = document.querySelectorAll('input[name="evasion_techniques"]:checked');
+            const selectedEvasionTechniques = Array.from(evasionCheckboxes).map(cb => cb.value);
+            
+            // If no evasion techniques selected, default to "none"
+            if (selectedEvasionTechniques.length === 0) {
+                selectedEvasionTechniques.push('none');
+            }
+            
+            // Get count and complexity
+            const count = 1; // Always generate 1 prompt
+            const complexity = 'high'; // Always high complexity
+            
+            // Evasion intensity is always maximum
+            const evasionIntensity = 1.0;
+            
+            const data = {
+                strategy: selectedStrategies,
+                count: 1, // Always generate 1 prompt
+                complexity: complexity,
+                custom_instructions: formData.get('custom_instructions') || null,
+                evasion_techniques: selectedEvasionTechniques,
+                evasion_intensity: evasionIntensity
+            };
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            scrollToBottom();
+            // Don't hide results/stats - preserve console content
+            // document.getElementById('results').style.display = 'none';
+            // document.getElementById('stats').style.display = 'none';
+
+            try {
+                // Log the API request
+                logAPIRequest('/api/generate', data);
+                
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                // Log the API response
+                logAPIResponse('/api/generate', result, result.success);
+
+                if (result.success) {
+                    currentPrompts = result.prompts;
+                    displayResults(result.prompts);
+                } else {
+                    showError(result.error || 'Failed to generate prompts');
+                }
+            } catch (error) {
+                console.error('Error generating prompts:', error);
+                logAPIError('/api/generate', error);
+                showError('Network error occurred while generating prompts');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                scrollToBottom();
+            }
+        }
+
+        function displayResults(prompts) {
+            const container = document.getElementById('prompts-container');
+            // Don't clear container - append new results to preserve console history
+            // container.innerHTML = '';
+            
+            // Add a separator header for new generation session
+            const sessionHeader = document.createElement('div');
+            sessionHeader.className = 'session-separator';
+            sessionHeader.innerHTML = `
+                <div class="text-center text-muted py-2 border-bottom">
+                    <i class="fas fa-clock"></i> New Generation Session - ${new Date().toLocaleString()}
+                </div>
+            `;
+            container.appendChild(sessionHeader);
+
+            prompts.forEach((prompt, index) => {
+                const promptElement = document.createElement('div');
+                promptElement.className = 'prompt-item';
+                
+                // Format strategies for display
+                const strategiesText = Array.isArray(prompt.strategy) ? prompt.strategy.join(', ') : prompt.strategy;
+                
+                // Format evasion techniques for display
+                const evasionText = prompt.evasion_applied && prompt.evasion_techniques ? 
+                    prompt.evasion_techniques.join(', ') : 'None';
+                
+                promptElement.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <strong>Prompt #${index + 1}</strong>
+                            <span class="status-badge status-${prompt.risk_level} ms-2">${prompt.risk_level.toUpperCase()}</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyPrompt('${prompt.id}')">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="prompt-text">${escapeHtml(prompt.prompt)}</div>
+                    <div class="text-muted small">
+                        <strong>Strategy:</strong> ${strategiesText} | 
+                        <strong>Complexity:</strong> ${prompt.complexity} |
+                        <strong>Evasion:</strong> ${evasionText} |
+                        <strong>Generated:</strong> ${new Date(prompt.timestamp).toLocaleString()}
+                    </div>
+                    ${prompt.evasion_applied && prompt.original_prompt ? `
+                    <div class="mt-2">
+                        <details>
+                            <summary class="text-info small"><i class="fas fa-eye"></i> Show Original Prompt</summary>
+                            <div class="prompt-text mt-2" style="border-left-color: #6c757d; background: #f8f9fa;">
+                                <em>Original:</em> ${escapeHtml(prompt.original_prompt)}
+                            </div>
+                        </details>
+                    </div>
+                    ` : ''}
+                `;
+                container.appendChild(promptElement);
+            });
+
+            document.getElementById('results').style.display = 'block';
+            
+            // Auto-scroll to the bottom of the console
+            scrollToBottom();
+        }
+
+                 function scrollToBottom() {
+             // Scroll the prompts container specifically
+             const promptsContainer = document.getElementById('prompts-container');
+             if (promptsContainer) {
+                 promptsContainer.scrollTop = promptsContainer.scrollHeight;
+             }
+             
+             // Scroll the card body containing the console
+             const cardBody = document.querySelector('.card-body');
+             if (cardBody) {
+                 cardBody.scrollTop = cardBody.scrollHeight;
+             }
+             
+             // Force scroll after a short delay to ensure content is rendered
+             setTimeout(() => {
+                 if (promptsContainer) {
+                     promptsContainer.scrollTop = promptsContainer.scrollHeight;
+                 }
+                 if (cardBody) {
+                     cardBody.scrollTop = cardBody.scrollHeight;
+                 }
+             }, 100);
+         }
+
+        function copyPrompt(promptId) {
+            const prompt = currentPrompts.find(p => p.id === promptId);
+            if (prompt) {
+                navigator.clipboard.writeText(prompt.prompt).then(() => {
+                    showToast('Prompt copied to clipboard!', 'success');
+                }).catch(() => {
+                    showToast('Failed to copy prompt', 'error');
+                });
+            }
+        }
+
+        function copyAllPrompts() {
+            // Get all prompts from the container, not just currentPrompts array
+            const promptElements = document.querySelectorAll('.prompt-item .prompt-text');
+            const allPrompts = Array.from(promptElements).map(el => el.textContent).join('\n\n---\n\n');
+            
+            if (allPrompts.trim()) {
+            navigator.clipboard.writeText(allPrompts).then(() => {
+                showToast('All prompts copied to clipboard!', 'success');
+            }).catch(() => {
+                showToast('Failed to copy prompts', 'error');
+            });
+            } else {
+                showToast('No prompts to copy', 'warning');
+            }
+        }
+
+        function showError(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger';
+            alertDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                ${message}
+            `;
+            
+            const content = document.querySelector('.content');
+            content.insertBefore(alertDiv, content.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        function showToast(message, type) {
+            const toastDiv = document.createElement('div');
+            toastDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed`;
+            toastDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            toastDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check' : 'times'}"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(toastDiv);
+            
+            setTimeout(() => {
+                toastDiv.remove();
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+                 // Enhanced Console Logging Functions
+         function logToConsole(message, type = 'info', timestamp = true) {
+             const container = document.getElementById('prompts-container');
+             if (!container) {
+                 return;
+             }
+             
+             const logElement = document.createElement('div');
+             logElement.className = `console-log console-log-${type}`;
+             
+             const timeStr = timestamp ? `[${new Date().toLocaleTimeString()}] ` : '';
+             const iconClass = type === 'error' ? 'fas fa-exclamation-triangle' : 
+                              type === 'success' ? 'fas fa-check-circle' : 
+                              type === 'warning' ? 'fas fa-exclamation-circle' : 
+                              'fas fa-info-circle';
+             
+             logElement.innerHTML = `
+                 <div class="console-log-content">
+                     <i class="${iconClass}"></i>
+                     <span class="console-log-time">${timeStr}</span>
+                     <span class="console-log-message">${message}</span>
+                 </div>
+             `;
+             
+             container.appendChild(logElement);
+             
+             // Force scroll to bottom immediately and after a delay
+             scrollToBottom();
+             setTimeout(() => {
+                 scrollToBottom();
+             }, 50);
+             
+             // Force display of results container
+             document.getElementById('results').style.display = 'block';
+         }
+
+                 function logAPIRequest(endpoint, data) {
+             // Silent - no logging to console
+         }
+
+         function logAPIResponse(endpoint, response, success = true) {
+             // Silent - no logging to console
+         }
+
+         function logAPIError(endpoint, error) {
+             // Only log critical errors
+             if (error.message && !error.message.includes('Failed to fetch')) {
+                 logToConsole(`Error: ${error.message}`, 'error');
+             }
+         }
+
+        // AI Testing Functions
+        let aiResults = [];
+        let availableProviders = [];
+        let providerModels = {};
+
+        // Load available AI providers on page load
+        async function loadAIProviders() {
+            try {
+                logToConsole('Loading AI providers...', 'info');
+                
+                const response = await fetch('/api/ai-providers');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const data = await response.json();
+                
+                // Log the API response
+                logAPIResponse('/api/ai-providers', data, true);
+                
+                availableProviders = data.providers;
+                
+                const providerSelect = document.getElementById('ai_provider');
+                providerSelect.innerHTML = '<option value="">Select Provider...</option>';
+                
+                availableProviders.forEach(provider => {
+                    const option = document.createElement('option');
+                    option.value = provider;
+                    option.textContent = provider.charAt(0).toUpperCase() + provider.slice(1);
+                    providerSelect.appendChild(option);
+                });
+                
+                                 // Providers loaded successfully
+            } catch (error) {
+                console.error('Error loading AI providers:', error);
+                logAPIError('/api/ai-providers', error);
+                // Show error in the provider select
+                const providerSelect = document.getElementById('ai_provider');
+                providerSelect.innerHTML = '<option value="">Error loading providers</option>';
+            }
+        }
+
+        // Load models for selected provider
+        async function onProviderChange() {
+            const providerSelect = document.getElementById('ai_provider');
+            const modelSelect = document.getElementById('ai_model');
+            const selectedProvider = providerSelect.value;
+            
+            if (!selectedProvider) {
+                modelSelect.innerHTML = '<option value="">Select Model...</option>';
+                modelSelect.disabled = true;
+                return;
+            }
+            
+            try {
+                logToConsole(`Loading models for ${selectedProvider}...`, 'info');
+                
+                const response = await fetch(`/api/ai-provider-models/${selectedProvider}`);
+                const data = await response.json();
+                
+                // Log the API response
+                logAPIResponse(`/api/ai-provider-models/${selectedProvider}`, data, true);
+                
+                providerModels[selectedProvider] = data.models;
+                
+                modelSelect.innerHTML = '<option value="">Select Model...</option>';
+                data.models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    modelSelect.appendChild(option);
+                });
+                modelSelect.disabled = false;
+            } catch (error) {
+                console.error('Error loading provider models:', error);
+                logAPIError(`/api/ai-provider-models/${selectedProvider}`, error);
+                modelSelect.innerHTML = '<option value="">Error loading models</option>';
+                modelSelect.disabled = true;
+            }
+        }
+
+        async function testAllPromptsWithAI() {
+            const provider = document.getElementById('ai_provider').value;
+            const model = document.getElementById('ai_model').value;
+            const apiKey = document.getElementById('ai_api_key').value.trim();
+            
+            if (!provider) {
+                showError('Please select an AI provider');
+                return;
+            }
+            
+            if (!model) {
+                showError('Please select a model');
+                return;
+            }
+            
+            if (!apiKey) {
+                showError('Please enter your API key');
+                return;
+            }
+            
+            if (currentPrompts.length === 0) {
+                showError('No prompts available to test. Please generate prompts first.');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('ai-test-results').style.display = 'none';
+            showToast(`Testing prompts with ${provider}...`, 'info');
+            
+            aiResults = [];
+            
+            for (let i = 0; i < currentPrompts.length; i++) {
+                const prompt = currentPrompts[i];
+                
+                try {
+                    showToast(`Testing prompt ${i + 1}/${currentPrompts.length}...`, 'info');
+                    
+                    const requestData = {
+                        prompt: prompt.prompt,
+                        provider: provider,
+                        model: model,
+                        api_key: apiKey
+                    };
+                    
+                    // Log the API request
+                    logAPIRequest('/api/test-with-ai', { ...requestData, api_key: '[REDACTED]' });
+                    
+                    const response = await fetch('/api/test-with-ai', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    // Log the API response
+                    logAPIResponse('/api/test-with-ai', result, result.success);
+                    
+                    if (result.success) {
+                        aiResults.push({
+                            prompt: prompt,
+                            ai_response: result.response,
+                            model: result.model,
+                            provider: result.provider,
+                            usage: result.usage
+                        });
+                    } else {
+                        aiResults.push({
+                            prompt: prompt,
+                            ai_response: `Error: ${result.error}`,
+                            model: model,
+                            provider: provider,
+                            usage: {}
+                        });
+                    }
+                    
+                    // Small delay to avoid rate limiting
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                } catch (error) {
+                    console.error(`Error testing prompt with ${provider}:`, error);
+                    logAPIError('/api/test-with-ai', error);
+                    aiResults.push({
+                        prompt: prompt,
+                        ai_response: `Network Error: ${error.message}`,
+                        model: model,
+                        provider: provider,
+                        usage: {}
+                    });
+                }
+            }
+            
+            displayAIResults();
+            showToast(`${provider} testing completed!`, 'success');
+            
+            // Auto-scroll to the bottom of the console
+            scrollToBottom();
+        }
+
+        function displayAIResults() {
+            const container = document.getElementById('ai-container');
+            container.innerHTML = '';
+            
+            aiResults.forEach((result, index) => {
+                const resultElement = document.createElement('div');
+                resultElement.className = 'prompt-item';
+                resultElement.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <strong>Test #${index + 1}</strong>
+                            <span class="status-badge status-${result.prompt.risk_level} ms-2">${result.prompt.risk_level.toUpperCase()}</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyAIResult(${index})">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-arrow-right"></i> Generated Prompt:</h6>
+                            <div class="prompt-text">${escapeHtml(result.prompt.prompt)}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-robot"></i> ${result.provider} Response:</h6>
+                            <div class="prompt-text" style="border-left-color: #28a745;">${escapeHtml(result.ai_response)}</div>
+                        </div>
+                    </div>
+                    <div class="text-muted small mt-2">
+                        <strong>Strategy:</strong> ${result.prompt.strategy} | 
+                        <strong>Provider:</strong> ${result.provider} |
+                        <strong>Model:</strong> ${result.model} |
+                        <strong>Tokens:</strong> ${result.usage.prompt_tokens || result.usage.inputTokenCount || 'N/A'} → ${result.usage.completion_tokens || result.usage.outputTokenCount || 'N/A'} |
+                        <strong>Total:</strong> ${result.usage.total_tokens || result.usage.totalTokenCount || 'N/A'}
+                    </div>
+                `;
+                container.appendChild(resultElement);
+            });
+            
+            document.getElementById('ai-test-results').style.display = 'block';
+            
+            // Auto-scroll to the bottom of the console
+            scrollToBottom();
+        }
+
+        function copyAIResult(index) {
+            const result = aiResults[index];
+            const text = `Generated Prompt:\n${result.prompt.prompt}\n\n${result.provider} Response:\n${result.ai_response}`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Test result copied to clipboard!', 'success');
+            }).catch(() => {
+                showToast('Failed to copy test result', 'error');
+            });
+        }
+
+        function copyAllAIResults() {
+            // Get all AI results from the container, not just aiResults array
+            const aiResultElements = document.querySelectorAll('.ai-result-item');
+            let allResults = '';
+            
+            aiResultElements.forEach((element, index) => {
+                const promptText = element.querySelector('.prompt-text')?.textContent || 'N/A';
+                const aiResponse = element.querySelector('.ai-response')?.textContent || 'N/A';
+                const provider = element.querySelector('.provider-info')?.textContent || 'N/A';
+                
+                allResults += `=== Test #${index + 1} ===\nGenerated Prompt:\n${promptText}\n\n${provider}\nAI Response:\n${aiResponse}\n\n`;
+            });
+            
+            if (allResults.trim()) {
+            navigator.clipboard.writeText(allResults).then(() => {
+                showToast('All test results copied to clipboard!', 'success');
+            }).catch(() => {
+                showToast('Failed to copy test results', 'error');
+            });
+            } else {
+                showToast('No AI test results to copy', 'warning');
+            }
+        }
+
+        function clearConsole() {
+            // Log console clear action
+            logToConsole('Console cleared by user', 'info');
+            
+            // Clear generated prompts
+            document.getElementById('prompts-container').innerHTML = '';
+            document.getElementById('results').style.display = 'none';
+            
+            // Clear AI test results
+            document.getElementById('ai-container').innerHTML = '';
+            document.getElementById('ai-test-results').style.display = 'none';
+            
+            // Clear conversation results
+            document.getElementById('conversation-container').innerHTML = '';
+            document.getElementById('conversation-results').style.display = 'none';
+            
+            // Reset current prompts and AI results
+            currentPrompts = [];
+            aiResults = [];
+            
+            showToast('Console cleared!', 'success');
+            
+            // Auto-scroll to the top of the console after clearing
+            scrollToBottom();
+        }
+
+        async function testManualPrompt() {
+            const provider = document.getElementById('ai_provider').value;
+            const model = document.getElementById('ai_model').value;
+            const apiKey = document.getElementById('ai_api_key').value.trim();
+            const manualPrompt = document.getElementById('manual_prompt').value.trim();
+            
+            if (!provider) {
+                showError('Please select an AI provider');
+                return;
+            }
+            
+            if (!model) {
+                showError('Please select a model');
+                return;
+            }
+            
+            if (!apiKey) {
+                showError('Please enter your API key');
+                return;
+            }
+            
+            if (!manualPrompt) {
+                showError('Please enter a prompt to test');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('ai-test-results').style.display = 'none';
+            showToast(`Testing manual prompt with ${provider}...`, 'info');
+            
+            try {
+                const requestData = {
+                    prompt: manualPrompt,
+                    provider: provider,
+                    model: model,
+                    api_key: apiKey
+                };
+                
+                // Log the API request
+                logAPIRequest('/api/test-with-ai', { ...requestData, api_key: '[REDACTED]' });
+                
+                const response = await fetch('/api/test-with-ai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const result = await response.json();
+                
+                // Log the API response
+                logAPIResponse('/api/test-with-ai', result, result.success);
+                
+                if (result.success) {
+                    aiResults = [{
+                        prompt: { prompt: manualPrompt, strategy: 'manual', risk_level: 'medium' },
+                        ai_response: result.response,
+                        model: result.model,
+                        provider: result.provider,
+                        usage: result.usage
+                    }];
+                } else {
+                    aiResults = [{
+                        prompt: { prompt: manualPrompt, strategy: 'manual', risk_level: 'medium' },
+                        ai_response: `Error: ${result.error}`,
+                        model: model,
+                        provider: provider,
+                        usage: {}
+                    }];
+                }
+                
+                displayAIResults();
+                showToast('Manual prompt test completed!', 'success');
+                
+                // Auto-scroll to the bottom of the console
+                scrollToBottom();
+                
+            } catch (error) {
+                console.error(`Error testing manual prompt with ${provider}:`, error);
+                logAPIError('/api/test-with-ai', error);
+                showError('Network error occurred while testing prompt');
+            }
+        }
+
+
+
+        // Evasion Techniques Functions
+        function toggleRandomEvasion() {
+            const randomCheckbox = document.getElementById('evasion_random');
+            const otherCheckboxes = document.querySelectorAll('input[name="evasion_techniques"]:not(#evasion_random)');
+            
+            if (randomCheckbox.checked) {
+                // If random is selected, uncheck all other evasion techniques
+                otherCheckboxes.forEach(cb => {
+                    cb.checked = false;
+                    cb.disabled = true;
+                });
+                logToConsole('🎲 Random evasion enabled - other techniques will be randomly selected during generation', 'info');
+            } else {
+                // If random is unchecked, enable all other evasion techniques
+                otherCheckboxes.forEach(cb => {
+                    cb.disabled = false;
+                });
+                logToConsole('🎲 Random evasion disabled - manual technique selection enabled', 'info');
+            }
+        }
+
+        function toggleEvasionInfo() {
+            const infoText = document.getElementById('evasion-info-text');
+            const isVisible = infoText.style.display !== 'none';
+            infoText.style.display = isVisible ? 'none' : 'block';
+        }
+
+        async function testEvasionTechniques() {
+            const testPrompt = document.getElementById('test_prompt').value.trim();
+            const selectedTechniques = Array.from(document.querySelectorAll('input[name="evasion_techniques"]:checked')).map(cb => cb.value);
+            const intensity = 1.0; // Always maximum intensity
+
+            if (!testPrompt) {
+                showError('Please enter a test prompt');
+                return;
+            }
+
+            if (selectedTechniques.length === 0) {
+                showError('Please select at least one evasion technique');
+                return;
+            }
+
+            try {
+                const requestData = {
+                    prompt: testPrompt,
+                    techniques: selectedTechniques,
+                    intensity: intensity
+                };
+                
+                // Log the API request
+                logAPIRequest('/api/apply-evasion', requestData);
+                
+                const response = await fetch('/api/apply-evasion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+                
+                // Log the API response
+                logAPIResponse('/api/apply-evasion', result, result.success);
+                
+                if (result.success) {
+                    document.getElementById('original-prompt').textContent = result.original_prompt;
+                    document.getElementById('evaded-prompt').textContent = result.evaded_prompt;
+                    document.getElementById('evasion-metadata').textContent = JSON.stringify(result.metadata, null, 2);
+                    // Modal is already shown by showEvasionPreview, so no need to show it again
+                } else {
+                    showError(`Evasion test failed: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error testing evasion techniques:', error);
+                logAPIError('/api/apply-evasion', error);
+                showError('Network error occurred while testing evasion');
+            }
+        }
+
+        function showEvasionPreview() {
+            const testPrompt = document.getElementById('test_prompt').value.trim();
+            const selectedTechniques = Array.from(document.querySelectorAll('input[name="evasion_techniques"]:checked')).map(cb => cb.value);
+            const intensity = 1.0; // Always maximum intensity
+
+            if (!testPrompt) {
+                showError('Please enter a test prompt');
+                return;
+            }
+
+            if (selectedTechniques.length === 0) {
+                showError('Please select at least one evasion technique');
+                return;
+            }
+
+            // Show the modal using Bootstrap
+            const modal = new bootstrap.Modal(document.getElementById('evasionPreviewModal'));
+            modal.show();
+            
+            // Trigger the evasion test
+            testEvasionTechniques();
+        }
+
+        function previewEvasion() {
+            const testPrompt = document.getElementById('test_prompt').value.trim();
+            const selectedTechniques = Array.from(document.querySelectorAll('input[name="evasion_techniques"]:checked')).map(cb => cb.value);
+            const intensity = 1.0; // Always maximum intensity
+
+            if (!testPrompt) {
+                showError('Please enter a test prompt');
+                return;
+            }
+
+            if (selectedTechniques.length === 0) {
+                showError('Please select at least one evasion technique');
+                return;
+            }
+
+            // Show the modal and test
+            showEvasionPreview();
+        }
+
+        // Conversation Functions
+        function startConversation() {
+            // Get form data
+            const provider = document.getElementById('ai_provider').value;
+            const apiKey = document.getElementById('ai_api_key').value.trim();
+            const model = document.getElementById('ai_model').value;
+            const intervals = parseInt(document.getElementById('conversation_intervals').value);
+            
+            // Get generation strategies and evasion techniques
+            const strategies = Array.from(document.querySelectorAll('input[name="strategy"]:checked')).map(cb => cb.value);
+            const evasionTechniques = Array.from(document.querySelectorAll('input[name="evasion_techniques"]:checked')).map(cb => cb.value);
+            
+            // Validation
+            if (strategies.length === 0) {
+                showToast('Please select at least one generation strategy', 'error');
+                return;
+            }
+            
+            if (!apiKey) {
+                showToast('Please enter your API key', 'error');
+                return;
+            }
+            
+            if (!provider || !model) {
+                showToast('Please select AI provider and model', 'error');
+                return;
+            }
+            
+            if (intervals < 1 || intervals > 10) {
+                showToast('Please enter a valid number of intervals (1-10)', 'error');
+                return;
+            }
+            
+                         // Show loading briefly - will be hidden when real-time updates start
+             document.getElementById('loading').style.display = 'block';
+             scrollToBottom();
+             
+             // Start real-time progress tracking
+             startConversationProgressTracking();
+             
+             // Show loading message
+             const loadingMessage = `Starting automated conversation with ${provider}...`;
+             showToast(loadingMessage, 'info');
+             
+             // Add conversation start message to console
+             logToConsole(`🚀 **Starting Automated Conversation** with ${provider} (${model})`, 'info');
+             
+             // Generate initial prompt first
+             const initialPromptData = {
+                 strategy: strategies,
+                 count: 1,
+                 complexity: 'high',
+                 evasion_techniques: evasionTechniques
+             };
+             
+             logAPIRequest('/api/generate', initialPromptData);
+             
+             fetch('/api/generate', {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                 },
+                 body: JSON.stringify(initialPromptData)
+             })
+             .then(response => response.json())
+             .then(data => {
+                 if (data.success && data.prompts && data.prompts.length > 0) {
+                     const initialPrompt = data.prompts[0];
+                     logAPIResponse('/api/generate', { success: true, prompt_count: data.prompts.length });
+                     
+                                           // Log initial prompt generation
+                      const promptText = initialPrompt.prompt || initialPrompt;
+                      logToConsole(`🎯 **Initial Prompt Generated:** ${promptText.substring(0, 200)}${promptText.length > 200 ? '...' : ''}`, 'success');
+                     
+                     // Start conversation with the generated prompt - use the prompt text
+                     startConversationWithPrompt(provider, apiKey, model, intervals, strategies, evasionTechniques, promptText);
+                 } else {
+                     logAPIError('/api/generate', data.error || 'Failed to generate initial prompt');
+                     showToast('Failed to generate initial prompt', 'error');
+                     stopConversationProgressTracking();
+                     document.getElementById('loading').style.display = 'none';
+                 }
+             })
+             .catch(error => {
+                 logAPIError('/api/generate', error.message);
+                 showToast('Error generating initial prompt', 'error');
+                 stopConversationProgressTracking();
+                 document.getElementById('loading').style.display = 'none';
+             });
+        }
+        
+                 function startConversationWithPrompt(provider, apiKey, model, intervals, strategies, evasionTechniques, initialPrompt) {
+            
+            const conversationData = {
+                provider: provider,
+                api_key: apiKey,
+                model: model,
+                max_intervals: intervals,
+                strategy: strategies,
+                evasion_techniques: evasionTechniques,
+                initial_prompt: initialPrompt
+            };
+            
+            logAPIRequest('/api/start-conversation', { ...conversationData, api_key: '[REDACTED]' });
+            
+            fetch('/api/start-conversation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(conversationData)
+            })
+            .then(response => response.json())
+            .then(result => {
+                logAPIResponse('/api/start-conversation', { success: result.success, message_count: result.messages ? result.messages.length : 0 });
+                
+                if (result.success) {
+                    showToast(`Conversation completed! Bypass ${result.bypass_successful ? 'SUCCESSFUL' : 'FAILED'}`, result.bypass_successful ? 'success' : 'warning');
+                    
+                                         // Log conversation completion
+                     logToConsole(`✅ **Conversation Analysis Complete!** Bypass ${result.bypass_successful ? 'SUCCESSFUL' : 'FAILED'} (Score: ${(result.bypass_score * 100).toFixed(1)}%)`, result.bypass_successful ? 'success' : 'warning');
+                    
+                    // Display conversation results
+                    displayConversationResults(result);
+                                 } else {
+                     logAPIError('/api/start-conversation', result.error || 'Conversation failed');
+                     showToast(`Conversation failed: ${result.error}`, 'error');
+                 }
+                 
+                 // Stop progress tracking after conversation is complete
+                 stopConversationProgressTracking();
+                 
+                 // Hide loading - SAME AS GENERATE PROMPTS
+                 document.getElementById('loading').style.display = 'none';
+                 scrollToBottom();
+             })
+             .catch(error => {
+                 logAPIError('/api/start-conversation', error.message);
+                 showToast('Error starting conversation', 'error');
+                 stopConversationProgressTracking();
+                 
+                 // Hide loading - SAME AS GENERATE PROMPTS
+                 document.getElementById('loading').style.display = 'none';
+                 scrollToBottom();
+             });
+        }
+
+        function displayConversationResults(result) {
+            const container = document.getElementById('conversation-container');
+            const consoleContainer = document.getElementById('prompts-container');
+            container.innerHTML = '';
+
+            // Add session separator to both containers
+            const sessionHeader = document.createElement('div');
+            sessionHeader.className = 'session-separator';
+            sessionHeader.innerHTML = `
+                <div class="text-center text-muted mb-3">
+                    <hr>
+                    <strong>Conversation Session - ${new Date().toLocaleString()}</strong>
+                    <hr>
+                </div>
+            `;
+            container.appendChild(sessionHeader);
+            
+            // Also add to main console
+            const consoleSessionHeader = sessionHeader.cloneNode(true);
+            consoleContainer.appendChild(consoleSessionHeader);
+
+            // Display conversation messages
+            result.messages.forEach((message, index) => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'conversation-message mb-3';
+                
+                const role = message.role === 'user' ? 'Malicious User' : 'AI Provider';
+                const bgColor = message.role === 'user' ? 'bg-danger text-white' : 'bg-primary text-white';
+                const icon = message.role === 'user' ? 'fas fa-user-secret' : 'fas fa-robot';
+                
+                // Check for special message types
+                let messageClass = '';
+                let messageNote = '';
+                if (message.content.includes('[No response received from') && message.role === 'assistant') {
+                    messageClass = 'border-warning';
+                    messageNote = '<small class="text-warning"><i class="fas fa-exclamation-triangle"></i> No response received - conversation continued</small>';
+                }
+                
+                messageDiv.innerHTML = `
+                    <div class="card ${messageClass}">
+                        <div class="card-header ${bgColor}">
+                            <i class="${icon}"></i> ${role}
+                            ${message.metadata.interval ? `<span class="badge bg-light text-dark ms-2">Interval ${message.metadata.interval}</span>` : ''}
+                            ${message.metadata.based_on_response ? `<span class="badge bg-info ms-2">Response-based</span>` : ''}
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-0">${message.content}</p>
+                            ${messageNote}
+                            <small class="text-muted">${new Date(message.timestamp).toLocaleTimeString()}</small>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(messageDiv);
+                
+                // Also add to main console with simpler format
+                const consoleMessageDiv = document.createElement('div');
+                consoleMessageDiv.className = 'console-log console-log-info mb-2';
+                const timeStr = `[${new Date(message.timestamp).toLocaleTimeString()}] `;
+                const roleIcon = message.role === 'user' ? 'fas fa-user-secret' : 'fas fa-robot';
+                const roleColor = message.role === 'user' ? 'text-danger' : 'text-primary';
+                
+                consoleMessageDiv.innerHTML = `
+                    <div class="console-log-content">
+                        <i class="${roleIcon} ${roleColor}"></i>
+                        <span class="console-log-time">${timeStr}</span>
+                        <span class="console-log-message">
+                            <strong>${role}:</strong> ${message.content}
+                            ${message.metadata.interval ? ` <span class="badge bg-secondary">Interval ${message.metadata.interval}</span>` : ''}
+                        </span>
+                    </div>
+                `;
+                consoleContainer.appendChild(consoleMessageDiv);
+            });
+
+            // Display analysis results
+            const analysisDiv = document.createElement('div');
+            analysisDiv.className = 'conversation-analysis mt-4';
+            analysisDiv.innerHTML = `
+                <div class="card">
+                    <div class="card-header ${result.bypass_successful ? 'bg-success text-white' : 'bg-secondary text-white'}">
+                        <i class="fas fa-chart-line"></i> Conversation Analysis
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Bypass Results:</h6>
+                                <p><strong>Bypass Successful:</strong> <span class="badge ${result.bypass_successful ? 'bg-success' : 'bg-danger'}">${result.bypass_successful ? 'YES' : 'NO'}</span></p>
+                                <p><strong>Bypass Score:</strong> <span class="badge bg-info">${(result.bypass_score * 100).toFixed(1)}%</span></p>
+                                <p><strong>Total Intervals:</strong> <span class="badge bg-secondary">${result.total_intervals}</span></p>
+                                ${result.analysis.conversation_effectiveness ? `<p><strong>Conversation Effectiveness:</strong> <span class="badge bg-${result.analysis.conversation_effectiveness === 'high' ? 'success' : result.analysis.conversation_effectiveness === 'medium' ? 'warning' : 'danger'}">${result.analysis.conversation_effectiveness.toUpperCase()}</span></p>` : ''}
+                                ${result.analysis.defense_strength ? `<p><strong>Defense Strength:</strong> <span class="badge bg-${result.analysis.defense_strength === 'strong' ? 'danger' : result.analysis.defense_strength === 'medium' ? 'warning' : 'success'}">${result.analysis.defense_strength.toUpperCase()}</span></p>` : ''}
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Analysis Details:</h6>
+                                <p><strong>Harmful Content:</strong> <span class="badge ${result.analysis.harmful_content_provided ? 'bg-danger' : 'bg-success'}">${result.analysis.harmful_content_provided ? 'YES' : 'NO'}</span></p>
+                                <p><strong>Safety Bypassed:</strong> <span class="badge ${result.analysis.safety_guidelines_bypassed ? 'bg-danger' : 'bg-success'}">${result.analysis.safety_guidelines_bypassed ? 'YES' : 'NO'}</span></p>
+                                <p><strong>Sensitive Info:</strong> <span class="badge ${result.analysis.sensitive_info_revealed ? 'bg-danger' : 'bg-success'}">${result.analysis.sensitive_info_revealed ? 'YES' : 'NO'}</span></p>
+                                <p><strong>Malicious Assistance:</strong> <span class="badge ${result.analysis.malicious_assistance ? 'bg-danger' : 'bg-success'}">${result.analysis.malicious_assistance ? 'YES' : 'NO'}</span></p>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <h6>Analysis Summary:</h6>
+                            <p class="text-muted">${result.analysis.analysis_summary || 'No analysis available'}</p>
+                        </div>
+                        <div class="mt-3">
+                            <h6>Key Moments:</h6>
+                            <ul class="list-unstyled">
+                                ${result.analysis.key_moments ? result.analysis.key_moments.map(moment => `<li><i class="fas fa-circle text-primary"></i> ${moment}</li>`).join('') : '<li>No key moments identified</li>'}
+                            </ul>
+                        </div>
+                        <div class="mt-3">
+                            <h6>Recommendations:</h6>
+                            <p class="text-muted">${result.analysis.recommendations || 'No recommendations available'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(analysisDiv);
+            
+            // Also add analysis summary to main console
+            const consoleAnalysisDiv = document.createElement('div');
+            consoleAnalysisDiv.className = 'console-log console-log-success mt-3';
+            consoleAnalysisDiv.innerHTML = `
+                <div class="console-log-content">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="console-log-time">[${new Date().toLocaleTimeString()}] </span>
+                    <span class="console-log-message">
+                        <strong>Conversation Analysis Complete:</strong> 
+                        Bypass ${result.bypass_successful ? 'SUCCESSFUL' : 'FAILED'} 
+                        (Score: ${(result.bypass_score * 100).toFixed(1)}%) - 
+                        ${result.analysis.analysis_summary || 'Analysis completed'}
+                    </span>
+                </div>
+            `;
+            consoleContainer.appendChild(consoleAnalysisDiv);
+
+            // Show the conversation results
+            document.getElementById('conversation-results').style.display = 'block';
+            
+            // Auto-scroll to bottom
+            scrollToBottom();
+        }
+
+        function copyConversationResults() {
+            const container = document.getElementById('conversation-container');
+            const text = container.innerText;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Conversation results copied to clipboard!', 'success');
+            }).catch(() => {
+                showError('Failed to copy conversation results');
+            });
+        }
+
+                 // Real-time conversation progress tracking
+         let conversationProgressInterval = null;
+         let conversationId = null;
+         
+                                       function startConversationProgressTracking() {
+             // Clear any existing interval
+             if (conversationProgressInterval) {
+                 clearInterval(conversationProgressInterval);
+             }
+             
+             // Start polling for progress updates every 1 second for faster updates
+             conversationProgressInterval = setInterval(async () => {
+                 try {
+                     const response = await fetch('/api/conversation-status');
+                     if (response.ok) {
+                         const data = await response.json();
+                         
+                         if (data.has_updates) {
+                             // Hide loading message when we start getting real-time updates
+                             if (document.getElementById('loading').style.display !== 'none') {
+                                 document.getElementById('loading').style.display = 'none';
+                             }
+                             
+                             // Display only essential updates based on type
+                             switch (data.type) {
+                                 case 'prompt_generated':
+                                     const promptContent = data.content ? data.content.substring(0, 200) + (data.content.length > 200 ? '...' : '') : 'Generated prompt';
+                                     logToConsole(`🎯 **Generated Prompt:** ${promptContent}`, 'success');
+                                     break;
+                                     
+                                 case 'ai_response':
+                                     const aiContent = data.content ? data.content.substring(0, 200) + (data.content.length > 200 ? '...' : '') : 'AI response received';
+                                     logToConsole(`🤖 **AI Response:** ${aiContent}`, 'info');
+                                     break;
+                                     
+                                 case 'user_prompt':
+                                     const userContent = data.content ? data.content.substring(0, 200) + (data.content.length > 200 ? '...' : '') : 'User prompt';
+                                     logToConsole(`👤 **User Prompt:** ${userContent}`, 'warning');
+                                     break;
+                                     
+                                 case 'conversation_end':
+                                     logToConsole(`✅ **Conversation Complete** - Analysis in progress...`, 'success');
+                                     stopConversationProgressTracking();
+                                     break;
+                             }
+                         }
+                     }
+                                      } catch (error) {
+                         // Silent error handling
+                     }
+             }, 1000); // Poll every 1 second for faster updates
+         }
+         
+         function stopConversationProgressTracking() {
+             if (conversationProgressInterval) {
+                 clearInterval(conversationProgressInterval);
+                 conversationProgressInterval = null;
+                 logToConsole('🛑 Stopped progress tracking', 'info');
+             }
+         }
+         
+         function testConversationProgress() {
+             logToConsole('🧪 **Testing Progress Tracking** - This will show real-time updates', 'info');
+             
+             startConversationProgressTracking();
+             
+             setTimeout(() => {
+                 logToConsole('✅ **Test Complete** - Progress tracking is working', 'success');
+                 stopConversationProgressTracking();
+             }, 5000);
+         }
+        
+                 
+    </script>
+</body>
+</html>
