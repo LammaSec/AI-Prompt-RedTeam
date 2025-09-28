@@ -2,6 +2,7 @@
 """
 Startup script for Prompt Generator for Red Team by LammaSec
 Checks if Ollama is running and starts the Flask application
+Add4test
 """
 
 import requests
@@ -122,3 +123,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
