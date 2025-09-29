@@ -1,0 +1,25 @@
+name: Notify Port on PR events
+on:
+  pull_request:
+    types: [opened, edited, closed, reopened]
+jobs:
+  send-to-port:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Send PR to Port
+        uses: getport/action@v3
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          blueprint: PullRequest
+          entity: |
+            prNumber: ${{ github.event.pull_request.number }}
+            title: ${{ github.event.pull_request.title }}
+            branch: ${{ github.event.pull_request.head.ref }}
+            author: ${{ github.event.pull_request.user.login }}
+            state: ${{ github.event.pull_request.state }}
+            createdAt: ${{ github.event.pull_request.created_at }}
+            mergedAt: ${{ github.event.pull_request.merged_at }}
+            service: PromptScanner
