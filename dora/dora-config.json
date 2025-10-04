@@ -4,6 +4,6 @@
     "repository": "AI-Prompt-RedTeam",
     "branch": "main",
     "timeframe": 4,
-    "workflows": ["ci.yaml","cd.yaml"]
+    "workflows": ["ci.yaml"]
   }
 ]
