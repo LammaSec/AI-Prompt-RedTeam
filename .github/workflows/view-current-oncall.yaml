@@ -1,0 +1,82 @@
+name: View Current On-Call User
+on:
+  workflow_dispatch:
+    inputs:
+      port_context:
+        required: true
+        description: includes blueprint, run ID, and entity identifier from Port.
+
+jobs:
+  view-current-oncall:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inform start of oncall lookup
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.getport.io
+          operation: PATCH_RUN
+          runId: ${{fromJson(inputs.port_context).run_id}}
+          logMessage: "Looking up current on-call user for schedule... ⛴️"
+
+      - name: Get current on-call information
+        id: get_oncall
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: "https://api.pagerduty.com/oncalls?schedule_ids[]=${{fromJson(inputs.port_context).entity}}"
+          method: "GET"
+          customHeaders: '{"Content-Type": "application/json", "Accept": "application/vnd.pagerduty+json;version=2", "Authorization": "Token token=${{ secrets.PAGERDUTY_API_KEY }}"}'
+
+      - name: Extract on-call user information
+        id: extract_oncall_info
+        run: |
+          ONCALL_DATA='${{ steps.get_oncall.outputs.response }}'
+          
+          # Check if there are any oncalls
+          ONCALL_COUNT=$(echo "$ONCALL_DATA" | jq '.oncalls | length')
+          
+          if [ "$ONCALL_COUNT" -eq 0 ]; then
+            echo "No one is currently on-call for this schedule"
+            echo "oncall_user=No one currently on-call" >> $GITHUB_OUTPUT
+            echo "oncall_start=N/A" >> $GITHUB_OUTPUT
+            echo "oncall_end=N/A" >> $GITHUB_OUTPUT
+            echo "escalation_level=N/A" >> $GITHUB_OUTPUT
+          else
+            # Get the first (primary) on-call entry
+            ONCALL_USER=$(echo "$ONCALL_DATA" | jq -r '.oncalls[0].user.summary // "Unknown"')
+            ONCALL_START=$(echo "$ONCALL_DATA" | jq -r '.oncalls[0].start // "Unknown"')
+            ONCALL_END=$(echo "$ONCALL_DATA" | jq -r '.oncalls[0].end // "Unknown"')
+            ESCALATION_LEVEL=$(echo "$ONCALL_DATA" | jq -r '.oncalls[0].escalation_level // "Unknown"')
+            
+            echo "oncall_user=$ONCALL_USER" >> $GITHUB_OUTPUT
+            echo "oncall_start=$ONCALL_START" >> $GITHUB_OUTPUT
+            echo "oncall_end=$ONCALL_END" >> $GITHUB_OUTPUT
+            echo "escalation_level=$ESCALATION_LEVEL" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Display on-call information
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.getport.io
+          operation: PATCH_RUN
+          runId: ${{fromJson(inputs.port_context).run_id}}
+          logMessage: |
+            📋 **Current On-Call Information:**
+            
+            👤 **User:** ${{ steps.extract_oncall_info.outputs.oncall_user }}
+            🕐 **Start:** ${{ steps.extract_oncall_info.outputs.oncall_start }}
+            🕕 **End:** ${{ steps.extract_oncall_info.outputs.oncall_end }}
+            📶 **Escalation Level:** ${{ steps.extract_oncall_info.outputs.escalation_level }}
+
+      - name: Log completion
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.getport.io
+          operation: PATCH_RUN
+          runId: ${{fromJson(inputs.port_context).run_id}}
+          logMessage: "On-call lookup completed successfully ✅"
